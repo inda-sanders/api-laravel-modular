@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\EnsureApiTokenIsValid;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,6 +30,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 'message' => 'You do not have the required authorization.',
                 'responseCode'  => 403,
                 'data' => [],
-            ]);
+            ], 200);
+        });
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Wrong Endpoint',
+                    'responseCode'  => 404,
+                    'data' => [],
+                ], 200);
+            }
         });
     })->create();

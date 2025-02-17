@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Auth\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
+use Modules\Dummy\Http\Controllers\DummyController;
 
 /*
  *--------------------------------------------------------------------------
@@ -16,14 +15,10 @@ use Illuminate\Http\Request;
 */
 
 // Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-//     Route::apiResource('auth', AuthController::class)->names('auth');
+//     Route::apiResource('dummy', DummyController::class)->names('dummy');
 // });
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
 Route::middleware('auth:api')->prefix('v1')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user()->getRoleNames();
     });
