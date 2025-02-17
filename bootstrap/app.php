@@ -25,20 +25,27 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, $request) {
+        // $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, $request) {
+        //     return response()->json([
+        //         'message' => 'You do not have the required authorization.',
+        //         'responseCode'  => 403,
+        //         'data' => [],
+        //     ], 200);
+        // });
+        // $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+        //     if ($request->is('api/*')) {
+        //         return response()->json([
+        //             'message' => 'Wrong Endpoint',
+        //             'responseCode'  => 404,
+        //             'data' => [],
+        //         ], 200);
+        //     }
+        // });
+        $exceptions->render(function (\Throwable $e, $request) {
             return response()->json([
-                'message' => 'You do not have the required authorization.',
-                'responseCode'  => 403,
+                'message' => $e->getMessage(),
+                'responseCode'  => $e->getStatusCode(),
                 'data' => [],
             ], 200);
-        });
-        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'message' => 'Wrong Endpoint',
-                    'responseCode'  => 404,
-                    'data' => [],
-                ], 200);
-            }
         });
     })->create();

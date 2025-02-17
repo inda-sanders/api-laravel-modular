@@ -20,7 +20,8 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            // return response()->json($validator->errors(), 400);
+            return response()->json(['responseCode' => 400, 'message' => 'Bad Request', 'data' => $validator->errors()], 200);
         }
 
         $user = User::create([
@@ -31,7 +32,9 @@ class AuthController extends Controller
 
         $token = $user->createToken('LaravelPassport')->accessToken;
 
-        return response()->json(['token' => $token, 'user' => $user], 201);
+        $user->token = $token;
+
+        return response()->json(['responseCode' => 201, 'message' => 'The user has successfully registered', 'data' => $user], 200);
     }
 
     // Login User
