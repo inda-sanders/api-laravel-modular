@@ -42,10 +42,12 @@ class AuthController extends Controller
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
-            $token = $user->createToken('LaravelPassport')->accessToken;
-            return response()->json(['token' => $token, 'user' => $user], 200);
+            $token = $user->createToken('client')->accessToken;
+
+            $user->token = $token;
+            return response()->json(['responseCode' => 200, 'message' => 'The user has successfully loggedin', 'data' => $user], 200);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['responseCode' => 401, 'message' => 'wrong login credentials', 'data' => ['email' => $request->email]], 200);
         }
     }
 
@@ -53,6 +55,6 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->token()->revoke();
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['responseCode' => 205, 'message' => 'Logout successful, please refresh', 'data' => []], 200);
     }
 }

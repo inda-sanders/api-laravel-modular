@@ -1,0 +1,16 @@
+First initialization
+- composer install (init all plugins)
+- php artisan module:migrate (create all the necessary tables)
+- php artisan db:seed (input all master data)
+- php artisan passport:client --personal (create passport client token)
+
+list necessary command artisan
+
+# Make module = php artisan module:make [Module Name]
+# Make controller in module = php artisan module:make-controller [Controller Name] [Module Name]
+# Make controller in module with resource = php artisan module:make-controller [Controller Name] [Module Name] --resource
+# Make migration in module = php artisan module:make-migration [Migration Name] [Module Name]
+# Make model in module = php artisan module:make-model [Model Name] [Module Name]
+# Make seeder in module = php artisan module:make-seed [Seeder Name] [Module Name]
+# Delete module = php artisan module:delete [Module Name]
+

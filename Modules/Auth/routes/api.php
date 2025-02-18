@@ -15,15 +15,17 @@ use Illuminate\Http\Request;
  *
 */
 
-// Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-//     Route::apiResource('auth', AuthController::class)->names('auth');
-// });
-
+/*
+ *  Route for register & login without token authentication
+ */
 Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+/*
+ *  Route for register & login without token authentication
+ */
 Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
