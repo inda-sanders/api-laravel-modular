@@ -4,6 +4,7 @@ namespace Modules\Dummy\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Modules\Dummy\Models\DummyModel;
 use Illuminate\Support\Str;
 
@@ -19,8 +20,6 @@ class DummyController extends Controller
      */
     public function index(Request $request)
     {
-        dd($request->method());
-        dd($request->uri()->path());
         $limit = $request->get('limit') ?? 10;
         $offset = $request->get('offset') ?? 0;
         $search = $request->get('search') ?? [];
@@ -50,7 +49,15 @@ class DummyController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            // return response()->json($validator->errors(), 400);
+            return response()->json(['responseCode' => 400, 'message' => 'Bad Request', 'data' => $validator->errors()], 200);
+        }
         $data = [
             'name' => 'John Doe',
             'age' => 25,
@@ -69,7 +76,7 @@ class DummyController extends Controller
             'uuid' => '61e5b30b-830d-3d19-ae9b-140ef76be7b8'
         ];
         try {
-            Dummy::create($data);
+            $this->dummy->create($data);
             return response()->json([
                 'responseCode' => 200,
                 'message' => 'Success insert data',
@@ -108,6 +115,9 @@ class DummyController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'name' => 'string|max:255'
+        ]);
         $data = [
             'name' => 'dummy 1',
             'age' => 25,

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\DatabaseMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,13 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->group('auth:api', [
-            EnsureApiTokenIsValid::class,
-        ]);
+        // $middleware->group('api', [
+        //     EnsureApiTokenIsValid::class,
+        // ]);
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'checkToken' => EnsureApiTokenIsValid::class,
+            'slavering' => DatabaseMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
@@ -41,11 +44,11 @@ return Application::configure(basePath: dirname(__DIR__))
         //         ], 200);
         //     }
         // });
-        $exceptions->render(function (\Throwable $e, $request) {
-            return response()->json([
-                'message' => $e->getMessage(),
-                'responseCode'  => $e->getStatusCode(),
-                'data' => [],
-            ], 200);
-        });
+        // $exceptions->render(function (\Throwable $e, $request) {
+        //     return response()->json([
+        //         'message' => $e->getMessage(),
+        //         'responseCode'  => $e->getStatusCode(),
+        //         'data' => [],
+        //     ], 200);
+        // });
     })->create();
