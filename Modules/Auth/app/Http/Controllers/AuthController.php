@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Modules\UserManagement\Models\departement;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -15,8 +17,13 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|regex:/^\S*$/',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
+            'entry_date' => 'date_format:Y-m-d',
+            'departement_id' => 'numeric',
+            'list_role' => 'array',
+            'is_active' => 'integer|in:0,1,2',
         ]);
 
         if ($validator->fails()) {
@@ -27,8 +34,16 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'username' => $request->username,
             'password' => bcrypt($request->password),
+            'entry_date' => $request->entry_date,
+            'departement_id' => $request->departement_id
         ]);
+
+        foreach ($request->list_role as $value) {
+            $role = Role::findById($value)->first();
+            $user->assignRole($role->name);
+        }
 
         $token = $user->createToken('LaravelPassport')->accessToken;
 
@@ -42,10 +57,12 @@ class AuthController extends Controller
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
+            // dd($user)
             $token = $user->createToken('client')->accessToken;
-
-            $user->token = $token;
-            return response()->json(['responseCode' => 200, 'message' => 'The user has successfully loggedin', 'data' => $user], 200);
+            $return = $user->get_user_data();
+            // $return->put('token', $token);
+            $return['token'] = $token;
+            return response()->json(['responseCode' => 200, 'message' => 'The user has successfully loggedin', 'data' => $return], 200);
         } else {
             return response()->json(['responseCode' => 401, 'message' => 'wrong login credentials', 'data' => ['email' => $request->email]], 200);
         }

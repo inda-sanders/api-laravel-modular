@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\Route;
 use Modules\Auth\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ Route::prefix('v1')->group(function () {
 /*
  *  Route for register & login without token authentication
  */
-Route::middleware('auth:api')->prefix('v1')->group(function () {
+Route::middleware(['auth:api','checkToken'])->prefix('v1')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user()->getRoleNames();
@@ -34,7 +35,7 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin-only', function () {
-            return response()->json(['message' => 'Welcome, Admin!']);
+            return response()->json(['message' => auth()->user()]);
         });
     });
 

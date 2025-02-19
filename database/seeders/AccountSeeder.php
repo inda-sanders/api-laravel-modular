@@ -28,16 +28,19 @@ class AccountSeeder extends Seeder
         // User::truncate();
         $super_admin = User::create([
             'name' => 'superadmin',
+            'username' => 'superadmin',
             'email' => 'superadmin@admin.com',
             'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
         ]);
         $user_admin = User::create([
             'name' => 'admin',
+            'username' => 'admin',
             'email' => 'admin@admin.com',
             'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
         ]);
         $user = User::create([
             'name' => 'user',
+            'username' => 'user',
             'email' => 'user@admin.com',
             'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
         ]);

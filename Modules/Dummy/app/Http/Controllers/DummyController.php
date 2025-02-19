@@ -4,33 +4,38 @@ namespace Modules\Dummy\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Modules\Dummy\Models\Dummy;
+use Modules\Dummy\Models\DummyModel;
 use Illuminate\Support\Str;
 
 class DummyController extends Controller
 {
+
+    public function __construct(Request $request)
+    {
+        $this->dummy = new DummyModel();
+    }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        dd($request->method());
+        dd($request->uri()->path());
         $limit = $request->get('limit') ?? 10;
-        $page = $request->get('page') ?? 1;
+        $offset = $request->get('offset') ?? 0;
         $search = $request->get('search') ?? [];
-        $where = [];
-        if(!empty($search['id'])){
-            $where[]=['id',$search['id']];
-        }
-        if(!empty($search['name'])){
-            $where[]=['id','LIKE',$search['id']];
-        }
-        // dd($where);
-        $getData = Dummy::where($where)->skip(($page - 1) * $limit)->take($limit)->get();
-        $countAll = Dummy::count();
+        $col = $request->get('col') ?? '';
+        $dir = $request->get('dir') ?? '';
+        $where = $request->get('where') ?? [];
+        $page = $request->get('page') ?? 1;
+
+        $getData = $this->dummy->getAllBy($limit, $offset, $search, $col, $dir, $where);
+        $countAll = $this->dummy->getCountAllBy();
+        $countData = $this->dummy->getCountAllBy($search, $where);
         $return = [
             'data' => $getData,
-            'totalData' => $countAll,
-            'countData' => $limit,
+            'totalAllData' => $countAll,
+            'totalData' => $countData,
             'page' => $page,
         ];
         return response()->json([
@@ -45,6 +50,7 @@ class DummyController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request);
         $data = [
             'name' => 'John Doe',
             'age' => 25,
@@ -83,19 +89,16 @@ class DummyController extends Controller
      */
     public function getOne($id)
     {
-        $getData = Dummy::where(['name' => 'Prof. Collin Lebsack'])->get();
-        $countAll = Dummy::count();
 
-        $return = [
-            'data' => $getData,
-            'totalData' => 1,
-            'countData' => 1,
-            'page' => 1,
-        ];
+        $getData = $this->dummy->find($id);
+
+        // $return = [
+        //     'data' => $getData
+        // ];
         return response()->json([
             'responseCode' => 200,
             'message' => 'Success get data',
-            'data' => $return,
+            'data' => $getData,
         ], 200);
         // return 'getOne';
     }
@@ -123,7 +126,7 @@ class DummyController extends Controller
             'uuid' => '61e5b30b-830d-3d19-ae9b-140ef76be7b8'
         ];
         try {
-            Dummy::where('id', $id)
+            $this->dummy->where('id', $id)
                 ->update($data);
             return response()->json([
                 'responseCode' => 200,
@@ -145,7 +148,7 @@ class DummyController extends Controller
     public function destroy($id)
     {
         try {
-            Dummy::where('id', $id)
+            $this->dummy->where('id', $id)
                 ->delete();
             return response()->json([
                 'responseCode' => 200,
