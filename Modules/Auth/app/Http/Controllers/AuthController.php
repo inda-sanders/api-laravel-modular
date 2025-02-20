@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Modules\UserManagement\Models\departement;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
-
+use Laravel\Passport\Token;
+use Ramsey\Uuid\Uuid;
 
 class AuthController extends Controller
 {
@@ -58,12 +59,21 @@ class AuthController extends Controller
     // Login User
     public function login(Request $request)
     {
+        // dd($request->client);
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             // dd($user)
-            $token = $user->createToken('client')->accessToken;
+            $client = Client::where(['name' => $request->client])->first(); // The ID of the OAuth client
+            $personalAccessToken = $user->createToken($request->client);
+            $token = $personalAccessToken->token;
+            $token->client_id = $client->id;
+            $token->save();
+
+            $token = $personalAccessToken->accessToken;
+            // dd($accessToken);
+            // $token = $token->accessToken;
             $return = $user->get_user_data();
-            // $return->put('token', $token);
+            $return->put('token', $token);
             $return['token'] = $token;
             return response()->json(['responseCode' => 200, 'message' => 'The user has successfully loggedin', 'data' => $return], 200);
         } else {

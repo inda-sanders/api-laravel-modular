@@ -29,7 +29,7 @@ Route::prefix('v1')->group(function () {
 /*
  *  Route for register & login without token authentication
  */
-Route::middleware(['auth:api', 'checkToken'])->prefix('v1')->group(function () {
+Route::middleware(['auth:api', 'checkToken:web'])->prefix('v1')->group(function () {
     Route::middleware(['slavering:1'])->post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user()->getRoleNames();

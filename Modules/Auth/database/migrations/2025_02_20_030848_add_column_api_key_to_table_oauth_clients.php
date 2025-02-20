@@ -15,9 +15,9 @@ return new class extends Migration
 
         });
         Schema::table('oauth_clients', function (Blueprint $table) {
-            if (!Schema::hasColumn('oauth_clients', 'app_key')) {
+            if (!Schema::hasColumn('oauth_clients', 'api_key')) {
                 Schema::table('oauth_clients', function (Blueprint $table) {
-                    $table->string('app_key')->after('secret')->nullable();
+                    $table->string('api_key')->after('secret')->nullable();
                     // $table->foreignId('category_id')->constrained();
                 });
             }
@@ -30,7 +30,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('oauth_clients', function (Blueprint $table) {
-            $table->dropColumn('app_key');
+            $table->dropColumn('api_key');
         });
     }
 };
