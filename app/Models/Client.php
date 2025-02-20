@@ -12,6 +12,7 @@ class Client extends BaseClient implements AuthorizableContract
     use HasRoles;
     use Authorizable;
 
+    protected $table = 'oauth_clients';
     public $guard_name = 'api';
 
     // or

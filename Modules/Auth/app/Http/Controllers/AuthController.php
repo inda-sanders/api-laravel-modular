@@ -3,12 +3,15 @@
 namespace Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Modules\UserManagement\Models\departement;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
+
 
 class AuthController extends Controller
 {
@@ -73,5 +76,29 @@ class AuthController extends Controller
     {
         $request->user()->token()->revoke();
         return response()->json(['responseCode' => 205, 'message' => 'Logout successful, please refresh', 'data' => []], 200);
+    }
+
+    //generate app-key for client
+    public function generateAppKey(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            // return response()->json($validator->errors(), 400);
+            return response()->json(['responseCode' => 400, 'message' => 'Bad Request', 'data' => $validator->errors()], 200);
+        }
+        $app_key = Str::random(32);
+        $client = new Client();
+        $client->name = $request->name;
+        $client->redirect = 'http://127.0.0.1:8000';
+        $client->personal_access_client = 1;
+        $client->password_client = 0;
+        $client->revoked = 1;
+        $client->app_key = $app_key;
+        $client->save();
+
+        return response()->json(['responseCode' => 201, 'message' => 'App Key generated', 'data' => ['app_key' => $app_key]], 200);
     }
 }
