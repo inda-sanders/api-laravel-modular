@@ -1,7 +1,9 @@
 First initialization
 - composer install (init all plugins)
+- php artisan passport:keys
 - php artisan module:migrate (create all the necessary tables)
 - php artisan db:seed (input all master data)
+- php artisan db:seed AccountSeeder (input users data)
 - php artisan passport:client --personal (create passport client token)
 
 list necessary command artisan

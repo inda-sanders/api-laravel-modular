@@ -23,7 +23,7 @@ class AccountSeeder extends Seeder
             'user'
         ];
         foreach ($roles as $value) :
-            $$value = Role::create(['name' => $value]);
+            $value = Role::create(['name' => $value]);
         endforeach;
         // User::truncate();
         $super_admin = User::create([
