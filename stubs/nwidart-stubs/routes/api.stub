@@ -17,3 +17,40 @@ use $MODULE_NAMESPACE$\$STUDLY_NAME$\$CONTROLLER_NAMESPACE$\$STUDLY_NAME$Control
 Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::apiResource('$LOWER_NAME$', $STUDLY_NAME$Controller::class)->names('$LOWER_NAME$');
 });
+
+/*
+ *--------------------------------------------------------------------------
+ * API Routes
+ *--------------------------------------------------------------------------
+ *
+ * Here is where you can register API routes for your application. These
+ * routes are loaded by the RouteServiceProvider within a group which
+ * is assigned the "api" middleware group. Enjoy building your API!
+ *
+*/
+
+/**
+ * Route without any token and api key validation
+ */
+
+Route::prefix('v1')->group(function () {
+
+    Route::get('$LOWER_NAME$/{id}', [$STUDLY_NAME$Controller::class, 'getOne'])->name('$LOWER_NAME$.getOne');
+    Route::apiResource('$LOWER_NAME$', $STUDLY_NAME$Controller::class)->names('$LOWER_NAME$')->except(['show']);
+});
+
+/*
+ *  Route for register & login without token authentication
+ *  Value option of public, transactional, finance
+ */
+
+Route::middleware(['checkToken:public'])->prefix('v1')->group(function () {
+});
+
+/*
+ *  Route with token and api key validation
+ *  For slavering using middleware 'slavering' with parameter 1, 2, or 3
+ *  For Role & Permission is using middleware spatie laravel-permission
+ */
+Route::middleware(['auth:api', 'checkToken:web'])->prefix('v1')->group(function () {
+});

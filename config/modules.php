@@ -23,9 +23,46 @@ return [
     | Default module stubs.
     |
     */
+    // 'stubs' => [
+    //     'enabled' => false,
+    //     'path' => base_path('vendor/nwidart/laravel-modules/src/Commands/stubs'),
+    //     'files' => [
+    //         'routes/web' => 'routes/web.php',
+    //         'routes/api' => 'routes/api.php',
+    //         'views/index' => 'resources/views/index.blade.php',
+    //         'views/master' => 'resources/views/layouts/master.blade.php',
+    //         'scaffold/config' => 'config/config.php',
+    //         'composer' => 'composer.json',
+    //         'assets/js/app' => 'resources/assets/js/app.js',
+    //         'assets/sass/app' => 'resources/assets/sass/app.scss',
+    //         'vite' => 'vite.config.js',
+    //         'package' => 'package.json',
+    //         'controller' => 'controller.stub',
+    //     ],
+    //     'replacements' => [
+    //         'routes/web' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME', 'MODULE_NAMESPACE', 'CONTROLLER_NAMESPACE'],
+    //         'routes/api' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME', 'MODULE_NAMESPACE', 'CONTROLLER_NAMESPACE'],
+    //         'vite' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME'],
+    //         'json' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME', 'MODULE_NAMESPACE', 'PROVIDER_NAMESPACE'],
+    //         'views/index' => ['LOWER_NAME'],
+    //         'views/master' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME',],
+    //         'scaffold/config' => ['STUDLY_NAME'],
+    //         'composer' => [
+    //             'LOWER_NAME',
+    //             'STUDLY_NAME',
+    //             'VENDOR',
+    //             'AUTHOR_NAME',
+    //             'AUTHOR_EMAIL',
+    //             'MODULE_NAMESPACE',
+    //             'PROVIDER_NAMESPACE',
+    //             'APP_FOLDER_NAME',
+    //         ],
+    //     ],
+    //     'gitkeep' => true,
+    // ],
     'stubs' => [
-        'enabled' => false,
-        'path' => base_path('vendor/nwidart/laravel-modules/src/Commands/stubs'),
+        'enabled' => true,
+        'path' => base_path('stubs\nwidart-stubs'),
         'files' => [
             'routes/web' => 'routes/web.php',
             'routes/api' => 'routes/api.php',
@@ -37,6 +74,8 @@ return [
             'assets/sass/app' => 'resources/assets/sass/app.scss',
             'vite' => 'vite.config.js',
             'package' => 'package.json',
+            'controller' => 'controller.stub',
+            'model' => 'model.stub',
         ],
         'replacements' => [
             'routes/web' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME', 'MODULE_NAMESPACE', 'CONTROLLER_NAMESPACE'],
@@ -125,7 +164,7 @@ return [
             'helpers' => ['path' => 'app/Helpers', 'generate' => false],
             'interfaces' => ['path' => 'app/Interfaces', 'generate' => false],
             'listener' => ['path' => 'app/Listeners', 'generate' => false],
-            'model' => ['path' => 'app/Models', 'generate' => false],
+            'model' => ['path' => 'app/Models', 'generate' => true],
             'notifications' => ['path' => 'app/Notifications', 'generate' => false],
             'observer' => ['path' => 'app/Observers', 'generate' => false],
             'policies' => ['path' => 'app/Policies', 'generate' => false],
@@ -147,9 +186,9 @@ return [
             'config' => ['path' => 'config', 'generate' => true],
 
             // database/
-            'factory' => ['path' => 'database/factories', 'generate' => true],
-            'migration' => ['path' => 'database/migrations', 'generate' => true],
-            'seeder' => ['path' => 'database/seeders', 'generate' => true],
+            'factory' => ['path' => 'database/factories', 'generate' => false],
+            'migration' => ['path' => 'database/migrations', 'generate' => false],
+            'seeder' => ['path' => 'database/seeders', 'generate' => false],
 
             // lang/
             'lang' => ['path' => 'lang', 'generate' => false],
@@ -157,7 +196,7 @@ return [
             // resource/
             'assets' => ['path' => 'resources/assets', 'generate' => true],
             'component-view' => ['path' => 'resources/views/components', 'generate' => false],
-            'views' => ['path' => 'resources/views', 'generate' => true],
+            'views' => ['path' => 'resources/views', 'generate' => false],
 
             // routes/
             'routes' => ['path' => 'routes', 'generate' => true],
