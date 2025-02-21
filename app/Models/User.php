@@ -31,6 +31,7 @@ class User extends Authenticatable
         'entry_date',
         'is_active',
         'department_id',
+        'client_id',
     ];
 
     /**
@@ -75,10 +76,10 @@ class User extends Authenticatable
     public function get_user_data()
     {
 
-            $userData = collect($this);
-            $userData['roles'] = $this->getRoleNames();
-            $userData['permissions'] = $this->getAllPermissions()->pluck('name');
-            $userData['department'] = $this->department();
+        $userData = collect($this);
+        $userData['roles'] = $this->getRoleNames();
+        $userData['permissions'] = $this->getAllPermissions()->pluck('name');
+        $userData['department'] = $this->department();
 
 
         return collect($userData);

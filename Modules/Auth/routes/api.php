@@ -16,20 +16,30 @@ use Illuminate\Http\Request;
  *
 */
 
-/*
- *  Route for register & login without token authentication
+/**
+ * Route without any token and api key validation
  */
 
 Route::prefix('v1')->group(function () {
-    Route::middleware(['checkToken:panel,web'])->post('/register', [AuthController::class, 'register']);
-    Route::middleware(['checkToken:panel,web'])->post('/login', [AuthController::class, 'login']);
     Route::post('/generate_token', [AuthController::class, 'generateAppKey']);
 });
 
 /*
  *  Route for register & login without token authentication
  */
+
+Route::middleware(['checkToken:public,transactional'])->prefix('v1')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+/*
+ *  Route with token and api key validation
+ */
 Route::middleware(['auth:api', 'checkToken:web'])->prefix('v1')->group(function () {
+    /**
+     * middleware to svalering database
+     */
     Route::middleware(['slavering:1'])->post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user()->getRoleNames();

@@ -31,18 +31,21 @@ class AccountSeeder extends Seeder
             'username' => 'superadmin',
             'email' => 'superadmin@admin.com',
             'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
+            'client_id'=>1
         ]);
         $user_admin = User::create([
             'name' => 'admin',
             'username' => 'admin',
             'email' => 'admin@admin.com',
             'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
+            'client_id'=>1
         ]);
         $user = User::create([
             'name' => 'user',
             'username' => 'user',
             'email' => 'user@admin.com',
             'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
+            'client_id'=>1
         ]);
         //    Roles
 
@@ -52,5 +55,9 @@ class AccountSeeder extends Seeder
         $super_admin->assignRole('superadmin');
         $user_admin->assignRole('admin');
         $user->assignRole('user');
+
+        $super_admin->createToken('panel')->accessToken;
+        $user_admin->createToken('panel')->accessToken;
+        $user->createToken('panel')->accessToken;
     }
 }
