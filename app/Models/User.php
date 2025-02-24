@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
+use Modules\Auth\Models\departmentModel;
 use Modules\UserManagement\Models\Department;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -84,10 +85,11 @@ class User extends Authenticatable
         ];
     }
 
-    // public function department()
-    // {
-    //     return $this->belongsTo(Department::class, 'department_id', 'id', 'name');
-    // }
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(departmentModel::class, 'department_id', 'id', 'name');
+    }
+
 
     public function getAllPermissionsAttribute()
     {
@@ -106,7 +108,7 @@ class User extends Authenticatable
         $userData = collect($this);
         $userData['roles'] = $this->getRoleNames();
         $userData['permissions'] = $this->getAllPermissions()->pluck('name');
-        // $userData['department'] = $this->department();
+        $userData['department'] = $this->department();
 
 
         return collect($userData);
@@ -128,7 +130,9 @@ class User extends Authenticatable
 
     public function getAllBy($limit, $offset, $search = [], $col = null, $dir = null, $where = [])
     {
-        $query = $this->select(DB::raw("*"))->with('roles');
+        $query = $this->select(DB::raw("users.*,department.name as department_name"))
+            ->with('roles')
+            ->leftjoin('department', 'users.department_id', '=', 'department.id');
 
         // Add a where clause to filter by model type
 
@@ -177,7 +181,9 @@ class User extends Authenticatable
 
     public function getCountAllBy($search = [], $where = [])
     {
-        $query = $this->select(DB::raw('count(*) as total'));
+        $query = $this->select(DB::raw('count(*) as total'))
+            ->with('roles')
+            ->leftjoin('department', 'users.department_id', '=', 'department.id');
 
         if (!empty($search)) {
             // $query->orWhere(function ($query) use ($search) {

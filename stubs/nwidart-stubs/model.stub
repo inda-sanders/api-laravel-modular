@@ -24,6 +24,11 @@ class $CLASS$ extends Model
     //     // return $NAME$Factory::new();
     // }
 
+    public function getUpdateFillable()
+    {
+        return $FILLABLE$;
+    }
+
     public function getAllBy($limit, $offset, $search = [], $col = null, $dir = null, $where = [])
     {
         $query = $this->select(DB::raw("*"));

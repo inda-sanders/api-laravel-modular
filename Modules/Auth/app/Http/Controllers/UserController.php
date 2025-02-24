@@ -31,11 +31,11 @@ class UserController extends Controller
         $page = $request->get('page') ?? 1;
 
         $where[] = ['client_id', '=', $request->client_id];
-        $where[] = ['is_deleted', '!=', 1];
-        $where[] = ['name', '!=', 'superadmin'];
+        $where[] = ['users.is_deleted', '!=', 1];
+        $where[] = ['users.name', '!=', 'superadmin'];
 
         $getData = $this->user->getAllBy($limit, $offset, $search, $col, $dir, $where);
-        $countAll = $this->user->getCountAllBy([], [['client_id', '=', $request->client_id], ['name', '!=', 'superadmin']]);
+        $countAll = $this->user->getCountAllBy([], [['client_id', '=', $request->client_id], ['users.name', '!=', 'superadmin']]);
         $countData = $this->user->getCountAllBy($search, $where);
         $return = [
             'data' => $getData,

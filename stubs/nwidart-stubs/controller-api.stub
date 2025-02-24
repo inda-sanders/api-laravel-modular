@@ -96,14 +96,19 @@ class $CLASS$ extends Controller
     {
         $getData = $this->custom->find($id);
 
-        // $return = [
-        //     'data' => $getData
-        // ];
-        return response()->json([
-            'responseCode' => 200,
-            'message' => 'Success get data',
-            'data' => $getData,
-        ], 200);
+        if (!empty($getData)) {
+            return response()->json([
+                'responseCode' => 200,
+                'message' => 'Success get data',
+                'data' => $getData,
+            ], 200);
+        } else {
+            return response()->json([
+                'responseCode' => 400,
+                'message' => 'Data Not Found',
+                'data' => [],
+            ], 200);
+        }
     }
 
     /**
@@ -114,26 +119,11 @@ class $CLASS$ extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'string|max:255'
         ]);
-        $data = [
-            'name' => 'custom 1',
-            'age' => 25,
-            'price' => 99.99,
-            'lat' => '40.7128',
-            'is_active' => true,
-            'description' => 'Lorem ipsum dolor sit amet.',
-            'birthdate' => '1998-12-25',
-            'start_time' => '08:00:00',
-            'created_at' => now(),
-            'updated_at' => now(),
-            'amount' => 199.99,
-            'preferences' => json_encode(['color' => 'blue', 'size' => 'L']),
-            'status' => 'completed',
-            'image' => file_get_contents(storage_path('favicon.ico')), // or use binary image data
-            'uuid' => '61e5b30b-830d-3d19-ae9b-140ef76be7b8'
-        ];
+
         try {
-            $this->custom->where('id', $id)
-                ->update($data);
+            $update = request()->only($this->user->getUpdateFillable());
+            $update['updated_by'] = Auth::user()->id;
+            $data = $this->user->where([['id', '=', $id]])->update($update);
             return response()->json([
                 'responseCode' => 200,
                 'message' => 'Success update data',
@@ -154,13 +144,21 @@ class $CLASS$ extends Controller
     public function destroy($id)
     {
         try {
-            $this->custom->where('id', $id)
-                ->delete();
-            return response()->json([
-                'responseCode' => 200,
-                'message' => 'Success delete data',
-                'data' => ['id' => $id]
-            ], 200);
+            $delete = $this->custom->where('id', $id)
+                ->update(['deleted_at' => date('Y-m-d H:i:s'), 'is_deleted' => 1, 'deleted_by' => Auth::user()->id]);
+            if ($delete) {
+                return response()->json([
+                    'responseCode' => 200,
+                    'message' => 'Success delete data',
+                    'data' => ['id' => $id]
+                ], 200);
+            } else {
+                return response()->json([
+                    'responseCode' => 404,
+                    'message' => 'Data Not Found',
+                    'data' => ['id' => $id]
+                ], 200);
+            }
         } catch (\Throwable $th) {
             return response()->json([
                 'responseCode' => 500,
