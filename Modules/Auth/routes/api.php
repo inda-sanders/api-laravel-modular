@@ -4,6 +4,8 @@ use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\Route;
 use Modules\Auth\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
+use Modules\Auth\Http\Controllers\DepartmentController;
+use Modules\Auth\Http\Controllers\UserController;
 
 /*
  *--------------------------------------------------------------------------
@@ -36,14 +38,19 @@ Route::middleware(['checkToken:public,transactional'])->prefix('v1')->group(func
 /*
  *  Route with token and api key validation
  */
-Route::middleware(['auth:api', 'checkToken:web'])->prefix('v1')->group(function () {
+Route::middleware(['auth:api', 'checkToken:public'])->prefix('v1')->group(function () {
+
+
+    Route::get('user/{id}', [UserController::class, 'getOne'])->name('user.getOne');
+    Route::apiResource('user', UserController::class)->names('user')->except(['show']);
+
+    Route::get('department/{id}', [DepartmentController::class, 'getOne'])->name('department.getOne');
+    Route::apiResource('department', DepartmentController::class)->names('department')->except(['show']);
+
     /**
      * middleware to svalering database
      */
     Route::middleware(['slavering:1'])->post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', function (Request $request) {
-        return $request->user()->getRoleNames();
-    });
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin-only', function () {

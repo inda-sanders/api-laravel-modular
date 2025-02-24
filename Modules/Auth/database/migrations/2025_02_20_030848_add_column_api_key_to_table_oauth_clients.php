@@ -12,9 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('oauth_clients', function (Blueprint $table) {
-
-        });
-        Schema::table('oauth_clients', function (Blueprint $table) {
             if (!Schema::hasColumn('oauth_clients', 'api_key')) {
                 Schema::table('oauth_clients', function (Blueprint $table) {
                     $table->string('api_key')->after('secret')->nullable();

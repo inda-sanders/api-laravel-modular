@@ -1,17 +1,18 @@
 <?php
 
-namespace $CLASS_NAMESPACE$;
+namespace Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Modules\$STUDLY_NAME$\Models\customModel;
+use Modules\Auth\Models\departmentModel;
 
-class $CLASS$ extends Controller
+class DepartmentController extends Controller
 {
     public function __construct(Request $request)
     {
-        $this->custom = new customModel();
+        $this->department = new departmentModel();
     }
 
     /**
@@ -27,9 +28,11 @@ class $CLASS$ extends Controller
         $where = $request->get('where') ?? [];
         $page = $request->get('page') ?? 1;
 
-        $getData = $this->custom->getAllBy($limit, $offset, $search, $col, $dir, $where);
-        $countAll = $this->custom->getCountAllBy();
-        $countData = $this->custom->getCountAllBy($search, $where);
+        $where[] = ['is_deleted', '!=', 1];
+
+        $getData = $this->department->getAllBy($limit, $offset, $search, $col, $dir, $where);
+        $countAll = $this->department->getCountAllBy();
+        $countData = $this->department->getCountAllBy($search, $where);
         $return = [
             'data' => $getData,
             'totalAllData' => $countAll,
@@ -57,24 +60,12 @@ class $CLASS$ extends Controller
             return response()->json(['responseCode' => 400, 'message' => 'Bad Request', 'data' => $validator->errors()], 200);
         }
         $data = [
-            'name' => 'John Doe',
-            'age' => 25,
-            'price' => 99.99,
-            'lat' => '40.7128',
-            'is_active' => true,
-            'description' => 'Lorem ipsum dolor sit amet.',
-            'birthdate' => '1998-12-25',
-            'start_time' => '08:00:00',
-            'created_at' => now(),
-            'updated_at' => now(),
-            'amount' => 199.99,
-            'preferences' => json_encode(['color' => 'blue', 'size' => 'L']),
-            'status' => 'completed',
-            'image' => file_get_contents(storage_path('favicon.ico')), // or use binary image data
-            'uuid' => '61e5b30b-830d-3d19-ae9b-140ef76be7b8'
+            'name' => $request->name,
+            'description' => $request->description,
+            'created_by' => Auth::user()->id,
         ];
         try {
-            $this->custom->create($data);
+            $this->department->create($data);
             return response()->json([
                 'responseCode' => 200,
                 'message' => 'Success insert data',
@@ -94,16 +85,21 @@ class $CLASS$ extends Controller
      */
     public function getOne($id)
     {
-        $getData = $this->custom->find($id);
+        $getData = $this->department->where([['id', '=', $id], ['is_deleted', '!=', 1]])->first();
 
-        // $return = [
-        //     'data' => $getData
-        // ];
-        return response()->json([
-            'responseCode' => 200,
-            'message' => 'Success get data',
-            'data' => $getData,
-        ], 200);
+        if (!empty($getData)) {
+            return response()->json([
+                'responseCode' => 200,
+                'message' => 'Success get data',
+                'data' => $getData,
+            ], 200);
+        } else {
+            return response()->json([
+                'responseCode' => 400,
+                'message' => 'Data Not Found',
+                'data' => [],
+            ], 200);
+        }
     }
 
     /**
@@ -114,26 +110,15 @@ class $CLASS$ extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'string|max:255'
         ]);
-        $data = [
-            'name' => 'custom 1',
-            'age' => 25,
-            'price' => 99.99,
-            'lat' => '40.7128',
-            'is_active' => true,
-            'description' => 'Lorem ipsum dolor sit amet.',
-            'birthdate' => '1998-12-25',
-            'start_time' => '08:00:00',
-            'created_at' => now(),
-            'updated_at' => now(),
-            'amount' => 199.99,
-            'preferences' => json_encode(['color' => 'blue', 'size' => 'L']),
-            'status' => 'completed',
-            'image' => file_get_contents(storage_path('favicon.ico')), // or use binary image data
-            'uuid' => '61e5b30b-830d-3d19-ae9b-140ef76be7b8'
-        ];
+        if ($validator->fails()) {
+            return response()->json(['responseCode' => 400, 'message' => 'Bad Request', 'data' => $validator->errors()], 200);
+        }
         try {
-            $this->custom->where('id', $id)
-                ->update($data);
+
+            $update = request()->only($this->department->getUpdateFillable());
+            $update['updated_by'] = Auth::user()->id;
+            $data = $this->department->where('id', $id)
+                ->update($update);
             return response()->json([
                 'responseCode' => 200,
                 'message' => 'Success update data',
@@ -143,7 +128,7 @@ class $CLASS$ extends Controller
             return response()->json([
                 'responseCode' => 500,
                 'message' => 'Failed to update data: ' . $th->getMessage(),
-                'data' => $data
+                'data' => ['id' => $id]
             ], 500);
         }
     }
@@ -154,13 +139,21 @@ class $CLASS$ extends Controller
     public function destroy($id)
     {
         try {
-            $this->custom->where('id', $id)
-                ->delete();
-            return response()->json([
-                'responseCode' => 200,
-                'message' => 'Success delete data',
-                'data' => ['id' => $id]
-            ], 200);
+            $delete = $this->department->where('id', $id)
+                ->update(['deleted_at' => date('Y-m-d H:i:s'), 'is_deleted' => 1, 'deleted_by' => Auth::user()->id]);
+            if ($delete) {
+                return response()->json([
+                    'responseCode' => 200,
+                    'message' => 'Success delete data',
+                    'data' => ['id' => $id]
+                ], 200);
+            } else {
+                return response()->json([
+                    'responseCode' => 404,
+                    'message' => 'Data Not Found',
+                    'data' => ['id' => $id]
+                ], 200);
+            }
         } catch (\Throwable $th) {
             return response()->json([
                 'responseCode' => 500,

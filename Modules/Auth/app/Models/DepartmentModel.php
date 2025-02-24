@@ -1,28 +1,43 @@
 <?php
 
-namespace $NAMESPACE$;
+namespace Modules\Auth\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
-// use $MODULE_NAMESPACE$\$MODULE$\Database\Factories\$NAME$Factory;
+// use Modules\Auth\Database\Factories\DepartmentModelFactory;
 
-class $CLASS$ extends Model
+class departmentModel extends Model
 {
     use HasFactory;
 
 
-    protected $table = 'custom';
+    protected $table = 'department';
 
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = $FILLABLE$;
+    protected $fillable = [
+        'name',
+        'description',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'deleted_at',
+    ];
 
-    // protected static function newFactory(): $NAME$Factory
+    // protected static function newFactory(): DepartmentModelFactory
     // {
-    //     // return $NAME$Factory::new();
+    //     // return DepartmentModelFactory::new();
     // }
+
+    public function getUpdateFillable()
+    {
+        return [
+            'name',
+            'description',
+        ];
+    }
 
     public function getAllBy($limit, $offset, $search = [], $col = null, $dir = null, $where = [])
     {

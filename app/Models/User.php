@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
 use Modules\UserManagement\Models\Department;
 use Spatie\Permission\Traits\HasRoles;
@@ -32,6 +33,9 @@ class User extends Authenticatable
         'is_active',
         'department_id',
         'client_id',
+        'created_by',
+        'updated_by',
+        'deleted_by',
     ];
 
     /**
@@ -42,7 +46,16 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'client_id'
     ];
+
+    protected $guard_name = 'api';
+
+
+    /**
+     * The attributes that are auto fill created_at and updated_at.
+     */
+    public $timestamps = true;
 
     /**
      * Get the attributes that should be cast.
@@ -57,10 +70,24 @@ class User extends Authenticatable
         ];
     }
 
-    public function department()
+    public function getUpdateFillable()
     {
-        return $this->belongsTo(Department::class, 'department_id', 'id', 'name');
+        return [
+            'name',
+            'username',
+            'email',
+            'entry_date',
+            'is_active',
+            'department_id',
+            'updated_by',
+            'created_by'
+        ];
     }
+
+    // public function department()
+    // {
+    //     return $this->belongsTo(Department::class, 'department_id', 'id', 'name');
+    // }
 
     public function getAllPermissionsAttribute()
     {
@@ -79,7 +106,7 @@ class User extends Authenticatable
         $userData = collect($this);
         $userData['roles'] = $this->getRoleNames();
         $userData['permissions'] = $this->getAllPermissions()->pluck('name');
-        $userData['department'] = $this->department();
+        // $userData['department'] = $this->department();
 
 
         return collect($userData);
@@ -97,5 +124,86 @@ class User extends Authenticatable
         }
 
         return $allUserData;
+    }
+
+    public function getAllBy($limit, $offset, $search = [], $col = null, $dir = null, $where = [])
+    {
+        $query = $this->select(DB::raw("*"))->with('roles');
+
+        // Add a where clause to filter by model type
+
+        // Apply the limit and offset clauses
+        if ($limit) {
+            $query->limit($limit);
+        }
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        // Apply the order by clause
+        if ($col && $dir) {
+            $query->orderBy($col, $dir);
+        }
+
+        // Apply the search criteria
+        if (!empty($search)) {
+            // $query->orWhere(function ($query) use ($search) {
+            //     $i = 0;
+            //     foreach ($search as $key => $value) {
+            //         if ($i = 0) {
+            //             $query->where($key, 'LIKE', "%{$value}%");
+            //         } else {
+            //             $query->orWhere($key, 'LIKE', "%{$value}%");
+            //         }
+            //         $i++;
+            //     }
+            // });
+            $searchs = [];
+            foreach ($search as $key => $value) {
+                $searchs[] = [$key, 'LIKE', "%{$value}%"];
+            }
+
+            $query->where($searchs);
+        }
+
+        // Apply the additional where clauses
+        if (!empty($where)) {
+            $query->where($where);
+        }
+
+        // Return the results
+        return $query->get();
+    }
+
+    public function getCountAllBy($search = [], $where = [])
+    {
+        $query = $this->select(DB::raw('count(*) as total'));
+
+        if (!empty($search)) {
+            // $query->orWhere(function ($query) use ($search) {
+            //     $i = 0;
+            //     foreach ($search as $key => $value) {
+            //         if ($i = 0) {
+            //             $query->where($key, 'LIKE', "%{$value}%");
+            //         } else {
+            //             $query->orWhere($key, 'LIKE', "%{$value}%");
+            //         }
+            //         $i++;
+            //     }
+            // });
+
+            $searchs = [];
+            foreach ($search as $key => $value) {
+                $searchs[] = [$key, 'LIKE', "%{$value}%"];
+            }
+
+            $query->where($searchs);
+        }
+
+        if (!empty($where)) {
+            $query->where($where);
+        }
+
+        return $query->first()->total;
     }
 }

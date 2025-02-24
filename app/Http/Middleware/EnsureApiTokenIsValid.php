@@ -24,7 +24,7 @@ class EnsureApiTokenIsValid extends Controller
 
         if ($allowedApiKeys && !$apiKey) {
             return response()->json(['responseCode' => 400, 'message' => 'Missing x-api-key', 'data' => []], 200);
-        }else if ($allowedApiKeys && $apiKey) {
+        } else if ($allowedApiKeys && $apiKey) {
             $client = Client::where('api_key', $apiKey)->first();
 
             if (!$client) {
