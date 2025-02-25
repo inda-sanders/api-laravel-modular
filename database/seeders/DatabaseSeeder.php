@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AuthDatabaseSeeder::class,
             DummyDatabaseSeeder::class,
+            // AccountSeeder::class,
+            RegexDatabaseSeeder::class,
+
             // Add other seeders as needed
         ]);
     }

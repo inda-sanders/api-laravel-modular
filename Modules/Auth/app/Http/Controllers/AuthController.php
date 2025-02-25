@@ -4,14 +4,19 @@ namespace Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Rules\EmailExist;
+use App\Rules\RegexRules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Modules\UserManagement\Models\departement;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Email;
 use Laravel\Passport\Token;
 use Ramsey\Uuid\Uuid;
 
@@ -22,48 +27,48 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|regex:/^\S*$/',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->where(function ($query) use ($request) {
-                if ($request->has('client_id')) {
-                    $query->where([['client_id', '=', $request->client_id], ['email', '=', $request->email]]);
-                } else {
-                    return response()->json(['responseCode' => 500, 'message' => 'Internal error', 'data' => []], 200);
+        try {
+
+
+            $validator = $request->validate([
+                'name' => ['required', new RegexRules("double_spacing")],
+                'username' => 'required|string|max:255|regex:/^\S*$/',
+                'email' => ['required', 'string', 'email', 'max:255', new EmailExist($request->client_id)],
+                'password' => 'required|string|min:6',
+                'entry_date' => 'date_format:Y-m-d',
+                'departement_id' => 'numeric',
+                'list_role' => 'array',
+                'is_active' => 'integer|in:0,1,2',
+            ]);
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => bcrypt($request->password),
+                'entry_date' => $request->entry_date,
+                'departement_id' => $request->departement_id,
+                'client_id' => $request->client_id
+            ]);
+
+            if (isset($request->list_role) && !empty($request->list_role)) {
+                foreach ($request->list_role as $value) {
+                    $role = Role::findById($value)->first();
+                    $user->assignRole($role->name);
                 }
-            })],
-            'password' => 'required|string|min:6',
-            'entry_date' => 'date_format:Y-m-d',
-            'departement_id' => 'numeric',
-            'list_role' => 'array',
-            'is_active' => 'integer|in:0,1,2',
-        ]);
+            }
 
-        if ($validator->fails()) {
-            return response()->json(['responseCode' => 400, 'message' => 'Bad Request', 'data' => $validator->errors()], 200);
+            $token = $user->createToken('LaravelPassport')->accessToken;
+            $user->token = $token;
+
+            $user = User::create($request);
+
+            return ApiResponse::success('The user has successfully registered', $user, 201);
+        } catch (ValidationException $e) {
+            return ApiResponse::validationError($e);
+        } catch (\Exception $e) {
+            return ApiResponse::error('Something went wrong', $e->getMessage(), 500);
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => bcrypt($request->password),
-            'entry_date' => $request->entry_date,
-            'departement_id' => $request->departement_id,
-            'client_id' => $request->client_id
-        ]);
-
-        foreach ($request->list_role as $value) {
-            $role = Role::findById($value)->first();
-            $user->assignRole($role->name);
-        }
-
-
-        $token = $user->createToken($request->client)->accessToken;
-
-        $user->token = $token;
-
-        return response()->json(['responseCode' => 201, 'message' => 'The user has successfully registered', 'data' => $user], 200);
     }
 
     /**
@@ -87,6 +92,10 @@ class AuthController extends Controller
         } else {
             return response()->json(['responseCode' => 401, 'message' => 'wrong login credentials', 'data' => ['email' => $request->email]], 200);
         }
+
+        // Jika berhasil login, buat token
+        $token = $user->createToken('API Token')->accessToken;
+        return response()->json(['token' => $token, 'user' => $user], 200);
     }
 
     /**

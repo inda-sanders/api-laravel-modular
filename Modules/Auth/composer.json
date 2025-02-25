@@ -1,12 +1,10 @@
 {
     "name": "nwidart/auth",
     "description": "",
-    "authors": [
-        {
-            "name": "Nicolas Widart",
-            "email": "n.widart@gmail.com"
-        }
-    ],
+    "authors": [{
+        "name": "Nicolas Widart",
+        "email": "n.widart@gmail.com"
+    }],
     "extra": {
         "laravel": {
             "providers": [],
@@ -17,10 +15,14 @@
     },
     "autoload": {
         "psr-4": {
+            "Modules\\": "Modules/",
             "Modules\\Auth\\": "app/",
             "Modules\\Auth\\Database\\Factories\\": "database/factories/",
             "Modules\\Auth\\Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/ApiResponse.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

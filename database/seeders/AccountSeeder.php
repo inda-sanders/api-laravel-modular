@@ -23,7 +23,7 @@ class AccountSeeder extends Seeder
             'user'
         ];
         foreach ($roles as $value) :
-            $value = Role::create(['name' => $value,'guard_name' => 'api']);
+            $value = Role::create(['name' => $value, 'guard_name' => 'api']);
         endforeach;
 
         $appList = [
@@ -34,27 +34,27 @@ class AccountSeeder extends Seeder
             'bank'
         ];
 
-        foreach($appList as $key => $value){
+        foreach ($appList as $key => $value) {
             $super_admin = User::create([
                 'name' => 'superadmin',
                 'username' => 'superadmin',
                 'email' => 'superadmin@admin.com',
                 'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
-                'client_id'=> $key+1
+                'client_id' => $key + 1
             ]);
             $user_admin = User::create([
                 'name' => 'admin',
                 'username' => 'admin',
                 'email' => 'admin@admin.com',
                 'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
-                'client_id'=>$key+1
+                'client_id' => $key + 1
             ]);
             $user = User::create([
                 'name' => 'user',
                 'username' => 'user',
                 'email' => 'user@admin.com',
                 'password' => '$2y$08$LE4H5hSpdxI5Lnfgt/CjzufLr9x33ZvDTOUA46Q4ZwbKCNQTa6/va',
-                'client_id'=>$key+1
+                'client_id' => $key + 1
             ]);
             //    Roles
 
